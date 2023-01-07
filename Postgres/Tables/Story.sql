@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS 'story' (
+    "id" SERIAL PRIMARY KEY,
+    "title" VARCHAR NOT NULL,
+    "description" VARCHAR NOT NULL,
+    "author" VARCHAR NOT NULL,
+    "date" TIMESTAMP WITH TIME ZONE NOT NULL,
+)
