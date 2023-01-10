@@ -1,6 +1,19 @@
-const { pgp } = require('./Connect');
+const { pgp, pg } = require('./Connect');
+const { selectCustomQuery } = require('./GetQuery');
 
-const insertQuery = async (id, schema, fieldArray, values, upsert = false, consoleLog = false) => {
+const getPKeys = async (schema) => {
+    const pKeys = await selectCustomQuery(`SELECT c.column_name, c.data_type
+    FROM information_schema.table_constraints tc 
+    JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_name) 
+    JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema
+      AND tc.table_name = c.table_name AND ccu.column_name = c.column_name
+    WHERE constraint_type = 'PRIMARY KEY' and tc.table_name = $1`, [schema]);
+    return {
+        [schema]: pKeys.map((row) => row.column_name)
+    }
+};
+
+const insertQuery = async (id, schema, fieldArray, values, upsert = false, consoleLog = false, pKeys = {}) => {
     let deadlocks = [];
     try {
         const cs = new pgp.helpers.ColumnSet(fieldArray, { table: schema });
@@ -11,14 +24,15 @@ const insertQuery = async (id, schema, fieldArray, values, upsert = false, conso
         });
         let upsertString = '';
         if (upsert) {
-            const usePKeys = await getPKeys();
-            const usePKey = usePKeys[schema];
-            upsertString = (`ON CONFLICT ${usePKey} DO UPDATE SET ` + cs.assignColumns({ from: 'EXCLUDED', skip: usePKey }));
+            const usePKeys = await getPKeys(schema);
+            const usePKey  = usePKeys[schema];
+            upsertString   = (`ON CONFLICT (${usePKey.join(',')}) DO UPDATE SET ` + cs.assignColumns({ from: 'EXCLUDED', skip: usePKey }));
         }
         const query = pgp.helpers.insert(formattedValues, cs) + upsertString;
-        await postgres.none(query);
+        await pg.none(query);
         consoleLog && console.log('INSERT: AWS RDS |', id, new Date());
     } catch (err) {
+        console.log(err)
         process.env.ENVIRONMENT !== 'PROD' && console.log(err.message);
         if (!err.message) { return console.log('INSERT: AWS RDS |', id, new Date(), '| ERROR: Unknown error encountered'); }
         if (err.message.includes('deadlock detected')) {

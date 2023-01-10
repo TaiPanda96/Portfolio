@@ -23,8 +23,12 @@ let server = app.listen(PORT, (server) => { console.log(`Server is running on po
 server.keepAliveTimeout = 65000;
 server.headersTimeout   = 66000;
 
+// Define Routes    
+const routes = require('./APIs/Endpoints/Routes');
+app.use('/api', routes);
+
 // Connection to Postgres
-const { pool, pg } = require('./Postgres/Connect');
+const { pool } = require('./Postgres/Connect');
 // Test Connection
 pool.connect((err, client, release) => {
     if (err) {
