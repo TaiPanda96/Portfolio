@@ -24,21 +24,13 @@ server.keepAliveTimeout = 65000;
 server.headersTimeout   = 66000;
 
 // Define Routes    
-const routes = require('./APIs/Endpoints/Routes');
+const routes = require('./apis/Endpoints/Routes');
 app.use('/api', routes);
 
 // Connection to Postgres
 const { pool } = require('./Postgres/Connect');
 // Test Connection
-pool.connect((err, client, release) => {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log("Postgres Connected!");
-        // SELECT NOW() AS "theTime";
-        client.query('SELECT NOW() AS "theTime"', (err, result) => {
-            if (err) { console.log(err) }
-            else { console.log(`The current time is: ${result.rows[0].theTime}`) }
-        })
-    }
+pool.query('SELECT NOW()', (err, res) => {
+    if (err) { console.log(err); }
+    console.log('Postgres Connected');
 });

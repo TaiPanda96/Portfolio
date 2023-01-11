@@ -3,10 +3,6 @@ types.setTypeParser(1700, function (val) {
   return parseFloat(val);
 });
 
-const pgp = require('pg-promise')({
-  capSQL: true,
-});
-
 const config = {
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -16,7 +12,5 @@ const config = {
 }
 
 const pool  = new Pool(config);
-const pg    = pgp(config);
-
 // Export the pool and pg
-module.exports = { pool, pg, pgp }; 
+module.exports = { pool, config }; 

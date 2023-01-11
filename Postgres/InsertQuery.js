@@ -1,4 +1,11 @@
-const { pgp, pg } = require('./Connect');
+const { config } = require('./Connect');
+
+const pgp = require('pg-promise')({
+    capSQL: true,
+});
+
+const pg = pgp(config);
+
 const { selectCustomQuery } = require('./GetQuery');
 
 const getPKeys = async (schema) => {

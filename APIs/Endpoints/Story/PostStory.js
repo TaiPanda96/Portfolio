@@ -1,5 +1,5 @@
 const { createStory } = require('../../Schemas/CreateStory');
-const { insertQuery } = require('../../../Postgres/InsertQuery');
+const { insertQuery } = require('../../../postgres/InsertQuery');
 const moment = require('moment');
 
 const postStory = async (req, res) => {
