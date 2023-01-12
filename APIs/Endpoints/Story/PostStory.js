@@ -12,7 +12,7 @@ const postStory = async (req, res) => {
 
     if (!story) { return res.status(400).send('Invalid Story'); }
     insertQuery(storyId, 'story', Object.keys(story), [Object.values(story)], true).then(() => {
-        return res.status(200).send('Story Created');
+        return res.status(200).send(`Story Created: ${storyId}`);
     }).catch((err) => {
         return res.status(500).send({
             message: 'Error creating story',
@@ -21,9 +21,4 @@ const postStory = async (req, res) => {
     })
 };
 
-const getStory = async (req, res) => {
-    return res.status(200).send([])
-};
-
 module.exports.postStory = postStory;
-module.exports.getStory  = getStory;
